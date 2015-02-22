@@ -1,0 +1,18 @@
+Jody's Little Calculator
+by Jody Bruchon <jody@jodybruchon.com>
+
+This is a project I'm writing as part of my compiler autodidacticism. While
+it initially seems ridiculous to write a calculator application, it is a
+most excellent exercise in writing many of the major components of a
+langauge compiler or interpreter. Inside you'll find an application that can
+handle many constructs that are much more difficult than simply adding two
+numbers. This program currently supports:
+
+* Typical simple calculator functions: + - / * ^
+* Variables with names up to 16 characters long
+* Parenthetical expression grouping
+* Setting variables to the value of an expression
+
+Since it's mainly for my learning and amusement, I don't expect anyone to
+find this particularly interesting, but if you find it and benefit from the
+code somehow, please send me an email and let me know. Thanks!
