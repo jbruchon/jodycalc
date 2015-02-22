@@ -1,7 +1,7 @@
 CC=gcc
 #CFLAGS=-O2 -pipe
 CFLAGS=-Og -g
-BUILD_CFLAGS=-std=gnu99 -I. -D_FILE_OFFSET_BITS=64 -pipe -Wall -pedantic
+BUILD_CFLAGS=-std=gnu99 -I. -D_FILE_OFFSET_BITS=64 -pipe -Wall -pedantic -fstrict-aliasing
 LDFLAGS=-lm
 
 prefix=/usr
