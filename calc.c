@@ -241,39 +241,10 @@ int expression(char *line, int len)
 					fprintf(stderr, "error: lvalue not a variable\n");
 					return 0;
 				}
-				origpos = lpos;
-				lpos = readtok(line, lpos, tok, &tok_type);
-
-				/* If more than one token is after '=', consider it an expression */
-				if (line[lpos] != '\0' && lpos < len) {
-					readtok(line, lpos, tok, NULL);
-					lpos = origpos;
-					tok_type = TOK_FORCE_EXPR;
-				}
-
-				switch (tok_type) {
-					case TOK_NUM:
-						result = atoi(tok);
-						set_var(lvname, result);
-						break;
-					case TOK_VAR:
-						if (!get_var(tok, &result)) {
-							fprintf(stderr, "error: no such variable: %s\n", tok);
-							return 0;
-						} else set_var(lvname, result);
-						break;
-					case TOK_EOL:
-					case TOK_NULL:
-					case TOK_INVALID:
-						fprintf(stderr, "error: no value given to assign to variable\n");
-						return 0;
-					case TOK_FORCE_EXPR:
-					default:
-						partial = line + lpos;
-						result = expression(partial, len - lpos);
-						set_var(lvname, result);
-						break;
-				}
+				/* The right side of the '=' is always an expression */
+				partial = line + lpos;
+				result = expression(partial, len - lpos);
+				set_var(lvname, result);
 				return result;
 
 			case TOK_OP:
