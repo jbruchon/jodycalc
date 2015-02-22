@@ -15,6 +15,7 @@
 #define TOK_PAREN	0x04
 #define TOK_ENDPAREN	0x05
 #define TOK_EQUAL	0x06
+#define TOK_COMPARE	0x07
 
 #define TOK_FORCE_EXPR	0x7d
 #define TOK_INVALID	0x7e
@@ -26,7 +27,7 @@
 #define IS_EQUAL(a) (a == '=')
 #define IS_OP(a) (a == '+' || a == '/' || a == '*' || \
 		a == '-' || a == '^')
-
+#define MAYBE_COMP(a) (a == '=' || a == '>' || a == '<' || a == '!')
 
 struct var {
 	char name[MAX_VAR_NAME];
@@ -119,13 +120,15 @@ int readtok(char *line, int lpos, char *tok, int *type)
 	len = strlen(line);
 
 	/* Handle obvious no-go cases */
-	if (len == 0 || lpos > len) return TOK_EOL;
-	if (line[lpos] == '\0') return TOK_EOL;
+	if (len == 0 || lpos > len) return -1;
+	if (line[lpos] == '\0') return -1;
 
 	/* Skip spaces */
 	while (IS_SPACE(line[lpos])) {
-		if (lpos == MAX_LINE || line[lpos] == '\0')
-			return TOK_EOL;
+		if (lpos == MAX_LINE || line[lpos] == '\0') {
+			*type = TOK_EOL;
+			return -1;
+		}
 		lpos++;
 	}
 
@@ -133,6 +136,40 @@ int readtok(char *line, int lpos, char *tok, int *type)
 	if (type == NULL) {
 		if (lpos < len) return TOK_NULL;
 		else return TOK_EOL;
+	}
+
+	/* Comparison operators */
+	if (*type == TOK_INVALID) {
+		if (MAYBE_COMP(line[lpos])) {
+			switch (line[lpos]) {
+				case '!':
+					if (line[lpos+1] != '=') break;
+				case '=':
+					if (line[lpos+1] == '=' ||
+					line[lpos+1] == '>' ||
+					line[lpos+1] == '<') {
+						*type = TOK_COMPARE;
+						tok[0] = line[lpos];
+						lpos++;
+						tok[1] = line[lpos];
+						lpos++;
+						tok[2] = '\0';
+						return lpos;
+					}
+					break;
+				case '>':
+				case '<':
+					*type = TOK_COMPARE;
+					tok[0] = line[lpos];
+					lpos++;
+					if (line[lpos+1] == '=') {
+						tok[1] = line[lpos];
+						lpos++;
+						tok[2] = '\0';
+					} else tok[1] = '\0';
+					return lpos;
+			}
+		}
 	}
 
 	/* Equals sign - only valid for variables */
@@ -213,7 +250,7 @@ int do_operation(int lvalue, int rvalue, int op)
 /* Evaluate an expression */
 int expression(char *line, int len)
 {
-	int lpos = 0, origpos;
+	int lpos = 0;
 	int neg = 0, lset = 0, lvar = 0;
 	int tok_type;
 	int result = 0;
@@ -235,6 +272,36 @@ int expression(char *line, int len)
 //		fprintf(stderr, "Read token: '%s' (type %d)\n", tok, tok_type);
 
 		switch (tok_type) {
+			case TOK_COMPARE:
+				if (!lset) {
+					fprintf(stderr, "error: left side of comparison empty\n");
+					return 0;
+				}
+				partial = line + lpos;
+				result = expression(partial, len - lpos);
+				if (!strncmp(tok, "==", 3)) {
+					if (lvalue == result) result = 1;
+					else result = 0;
+				} else if (!strncmp(tok, "!=", 3)) {
+					if (lvalue != result) result = 1;
+					else result = 0;
+				} else if (!strncmp(tok, ">=", 3) || !strncmp(tok, "=>", 3)) {
+					if (lvalue >= result) result = 1;
+					else result = 0;
+				} else if (!strncmp(tok, "<=", 3) || !strncmp(tok, "=<", 3)) {
+					if (lvalue <= result) result = 1;
+					else result = 0;
+				} else if (!strncmp(tok, ">", 2)) {
+					if (lvalue > result) result = 1;
+					else result = 0;
+				} else if (!strncmp(tok, "<", 2)) {
+					if (lvalue < result) result = 1;
+					else result = 0;
+				} else {
+					fprintf(stderr, "error: bad comparison operator '%s'\n", tok);
+					return 0;
+				}
+				return result;
 			case TOK_EQUAL:
 				/* Expect to set a variable and nothing more */
 				if (lvar == 0) {
