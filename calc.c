@@ -26,7 +26,7 @@
 #define IS_ALPHA(a) (a >= 'a' && a <= 'z')
 #define IS_EQUAL(a) (a == '=')
 #define IS_OP(a) (a == '+' || a == '/' || a == '*' || \
-		a == '-' || a == '^')
+		a == '-' || a == '^' || a == '%')
 #define MAYBE_COMP(a) (a == '=' || a == '>' || a == '<' || a == '!')
 
 struct var {
@@ -40,12 +40,13 @@ struct var *var_head;
 
 void do_help(void)
 {
-	fprintf(stderr, "Type math stuff and get answers!\n");
-	fprintf(stderr, "Supports: +, -, /, *, ^, (), integers only\n");
+	fprintf(stderr, "\nType math stuff and get answers!\n");
+	fprintf(stderr, "Supports: +, -, /, *, ^, %%, (), integers only\n");
 	fprintf(stderr, "For example, type in:\n");
 	fprintf(stderr, "123 + 321\n");
 	fprintf(stderr, "You'll get the answer:\n");
 	fprintf(stderr, "444\n\n");
+	fprintf(stderr, "Type 'quit' to exit the program.\n\n");
 	return;
 }
 
@@ -238,6 +239,7 @@ int do_operation(int lvalue, int rvalue, int op)
 		case '+': return (lvalue + rvalue);
 		case '-': return (lvalue - rvalue);
 		case '*': return (lvalue * rvalue);
+		case '%': return (lvalue % rvalue);
 		case '^': return pow(lvalue, rvalue);
 		default:
 			  fprintf(stderr, "error: bad operation\n");
