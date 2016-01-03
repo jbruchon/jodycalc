@@ -270,6 +270,7 @@ static long expression(char *line, int len)
 	char *partial;
 	long lvalue = 0, rvalue = 0;
 	int op = 0;
+	char *num_check;
 
 	if (len == 0) return 0;
 
@@ -371,12 +372,15 @@ static long expression(char *line, int len)
 						strncat(subexpr, tok, MAX_LINE);
 					} else break;
 				}
+				/* recursively handle parenthetical subexpression(s) */
 				result = expression(subexpr, strlen(subexpr));
 				goto token_final_eval;
 
 			case TOK_NUM:
-				if (strlen(tok) > 10) fprintf(stderr, "warning: overflow\n");
-				result = atoi(tok);
+				if (strlen(tok) > 19) fprintf(stderr, "warning: overflow\n");
+				result = strtol(tok, &num_check, 10);
+				if (tok == num_check)
+					fprintf(stderr, "error: cannot interpret as number: '%s'\n", tok);
 				goto token_final_eval;
 
 			case TOK_VAR:
@@ -394,16 +398,16 @@ static long expression(char *line, int len)
 				}
 				goto token_final_eval;
 token_final_eval:
-				/* Final evaluation code */
+				/* Final evaluation code: negation, set lvalue, execute operation */
+				//fprintf(stderr, "DBGpre: lset %d, lv %ld, rv %ld, res %ld, neg %d, op %d\n", lset,lvalue,rvalue,result,neg,op);
+				if (neg > 0) result = -result;
 				if (!lset) {
 					lvalue = result;
-					if (neg > 0) lvalue = -lvalue;
 					neg = 0;
 					lset = 1;
 					continue;
 				} else if (op) {
 					rvalue = result;
-					if (neg > 0) rvalue = -rvalue;
 					neg = 0;
 					result = do_operation(lvalue, rvalue, op);
 					op = 0;
