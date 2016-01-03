@@ -362,29 +362,28 @@ int expression(char *line, int len)
 					} else break;
 				}
 				result = expression(subexpr, strlen(subexpr));
+				goto token_final_eval;
 
 			case TOK_NUM:
-				if (tok_type == TOK_NUM) {
-					if (strlen(tok) > 10) fprintf(stderr, "warning: overflow\n");
-					result = atoi(tok);
-				}
+				if (strlen(tok) > 10) fprintf(stderr, "warning: overflow\n");
+				result = atoi(tok);
+				goto token_final_eval;
 
 			case TOK_VAR:
-				if (tok_type == TOK_VAR) {
-					/* Variable may be set later */
-					if (!lvar && !op && !lset) {
-						strncpy(lvname, tok, MAX_VAR_NAME);
-						/* In case it won't be set, pull an lvalue */
-						if (get_var(tok, &result)) lvar = 1;
-						else lvar = -1;
-					}
-					/* Variable can't possibly be set after an operation */
-					if (op && !get_var(tok, &result)) {
-						fprintf(stderr, "error: no such variable: %s\n", tok);
-						return 0;
-					}
+				/* Variable may be set later */
+				if (!lvar && !op && !lset) {
+					strncpy(lvname, tok, MAX_VAR_NAME);
+					/* In case it won't be set, pull an lvalue */
+					if (get_var(tok, &result)) lvar = 1;
+					else lvar = -1;
 				}
-
+				/* Variable can't possibly be set after an operation */
+				if (op && !get_var(tok, &result)) {
+					fprintf(stderr, "error: no such variable: %s\n", tok);
+					return 0;
+				}
+				goto token_final_eval;
+token_final_eval:
 				/* Final evaluation code */
 				if (!lset) {
 					lvalue = result;
