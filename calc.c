@@ -1,3 +1,12 @@
+/*
+ * Jody Bruchon's calculator
+ * Copyright (C) 2015-2016 by Jody Bruchon <jody@jodybruchon.com>
+ *
+ * This is an educational program that performs simple calculations typed
+ * in by the user. It contains a simple tokenizer and recursive descent
+ * parser with look-ahead.
+ */
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,7 +14,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define MAX_LINE 80	/* Maximum input line length */
+#define MAX_LINE 120	/* Maximum input line length */
 #define MAX_VAR_NAME 16	/* Maximum variable name length */
 
 #define TOK_NULL	0x00
@@ -38,7 +47,7 @@ struct var {
 struct var *var_head;
 
 
-void do_help(void)
+static inline void do_help(void)
 {
 	fprintf(stderr, "\nType math stuff and get answers!\n");
 	fprintf(stderr, "Supports: +, -, /, *, ^, %%, (), integers only\n");
@@ -52,7 +61,7 @@ void do_help(void)
 
 
 /* Locate a variable in the variable list */
-struct var *find_var(char *name, struct var **tail)
+static struct var *find_var(char *name, struct var **tail)
 {
 	struct var *p = var_head;
 
@@ -67,7 +76,7 @@ struct var *find_var(char *name, struct var **tail)
 
 
 /* Retrieve a variable's value (returns 1 if successful) */
-int get_var(char *name, int *var)
+static int get_var(char *name, int *var)
 {
 	struct var *p;
 
@@ -80,7 +89,7 @@ int get_var(char *name, int *var)
 
 
 /* Set (or add) a variable */
-void set_var(char *name, int value)
+static void set_var(char *name, int value)
 {
 	struct var *p, *tail;
 
@@ -110,7 +119,7 @@ oom:
 	exit(EXIT_FAILURE);
 }
 
-int readtok(char *line, int lpos, char *tok, int *type)
+static int readtok(char *line, int lpos, char *tok, int *type)
 {
 	int len;
 	int tpos = 0;
@@ -227,7 +236,7 @@ int readtok(char *line, int lpos, char *tok, int *type)
 
 
 /* Perform an operation */
-int do_operation(int lvalue, int rvalue, int op)
+static int do_operation(int lvalue, int rvalue, int op)
 {
 	switch (op) {
 		case '/':
@@ -250,7 +259,7 @@ int do_operation(int lvalue, int rvalue, int op)
 
 
 /* Evaluate an expression */
-int expression(char *line, int len)
+static int expression(char *line, int len)
 {
 	int lpos = 0;
 	int neg = 0, lset = 0, lvar = 0;
@@ -457,4 +466,3 @@ int main(int argc, char **argv)
 	}
 	exit(EXIT_SUCCESS);
 }
-

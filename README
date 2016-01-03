@@ -8,10 +8,14 @@ langauge compiler or interpreter. Inside you'll find an application that can
 handle many constructs that are much more difficult than simply adding two
 numbers. This program currently supports:
 
-* Typical simple calculator functions: + - / * ^
+* Typical simple calculator functions: + - / * ^ %
 * Variables with names up to 16 characters long
 * Parenthetical expression grouping
 * Setting variables to the value of an expression
+
+It does not support mathematical order of operations. The parser would need
+to perform extra look-ahead or an extra pass to add parentheses as needed to
+enforce proper order of operations.
 
 Since it's mainly for my learning and amusement, I don't expect anyone to
 find this particularly interesting, but if you find it and benefit from the
