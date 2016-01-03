@@ -40,7 +40,7 @@
 
 struct var {
 	char name[MAX_VAR_NAME];
-	int value;
+	long value;
 	struct var *next;
 };
 
@@ -76,7 +76,7 @@ static struct var *find_var(char *name, struct var **tail)
 
 
 /* Retrieve a variable's value (returns 1 if successful) */
-static int get_var(char *name, int *var)
+static int get_var(char *name, long *var)
 {
 	struct var *p;
 
@@ -89,7 +89,7 @@ static int get_var(char *name, int *var)
 
 
 /* Set (or add) a variable */
-static void set_var(char *name, int value)
+static void set_var(char *name, long value)
 {
 	struct var *p, *tail;
 
@@ -236,7 +236,7 @@ static int readtok(char *line, int lpos, char *tok, int *type)
 
 
 /* Perform an operation */
-static int do_operation(int lvalue, int rvalue, int op)
+static long do_operation(const long lvalue, const long rvalue, const int op)
 {
 	switch (op) {
 		case '/':
@@ -249,7 +249,7 @@ static int do_operation(int lvalue, int rvalue, int op)
 		case '-': return (lvalue - rvalue);
 		case '*': return (lvalue * rvalue);
 		case '%': return (lvalue % rvalue);
-		case '^': return pow(lvalue, rvalue);
+		case '^': return (long)pow(lvalue, rvalue);
 		default:
 			  fprintf(stderr, "error: bad operation\n");
 			  return 0;
@@ -259,16 +259,17 @@ static int do_operation(int lvalue, int rvalue, int op)
 
 
 /* Evaluate an expression */
-static int expression(char *line, int len)
+static long expression(char *line, int len)
 {
 	int lpos = 0;
 	int neg = 0, lset = 0, lvar = 0;
 	int tok_type;
-	int result = 0;
+	long result = 0;
 	char tok[MAX_LINE], subexpr[MAX_LINE];
 	char lvname[MAX_VAR_NAME];
 	char *partial;
-	int lvalue = 0, rvalue = 0, op = 0;
+	long lvalue = 0, rvalue = 0;
+	int op = 0;
 
 	if (len == 0) return 0;
 
@@ -462,7 +463,7 @@ int main(int argc, char **argv)
 		if (len == 0) continue;
 		if (!strncmp(line, "quit", MAX_LINE)) break;
 		else if (!strncmp(line, "help", MAX_LINE)) do_help();
-		else printf("%d\n", expression(line, len));
+		else printf("%ld\n", expression(line, len));
 	}
 	exit(EXIT_SUCCESS);
 }

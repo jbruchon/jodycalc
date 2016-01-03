@@ -13,6 +13,8 @@ datarootdir=${prefix}/share
 datadir=${datarootdir}
 sysconfdir=${prefix}/etc
 
+BUILD_CFLAGS += $(CFLAGS_EXTRA)
+
 all: calc manual
 
 calc: calc.o
