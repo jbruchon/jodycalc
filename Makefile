@@ -14,6 +14,9 @@ datadir=${datarootdir}
 sysconfdir=${prefix}/etc
 
 BUILD_CFLAGS += $(CFLAGS_EXTRA)
+ifdef DEBUG
+BUILD_CFLAGS += -DDEBUG
+endif
 
 all: jodycalc manual
 

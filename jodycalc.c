@@ -30,21 +30,42 @@
 #define TOK_INVALID	0x7e
 #define TOK_EOL		0x7f
 
+#ifdef DEBUG
+/*** Debugging struct ***/
+struct toktypename {
+	int type;
+	char name[24];
+};
+
+static const struct toktypename toktypename[] = {
+	{ 0x00, "TOK_NULL" },
+	{ 0x01, "TOK_NUM" },
+	{ 0x02, "TOK_VAR" },
+	{ 0x03, "TOK_OP" },
+	{ 0x04, "TOK_PAREN" },
+	{ 0x05, "TOK_ENDPAREN" },
+	{ 0x06, "TOK_EQUAL" },
+	{ 0x07, "TOK_COMPARE" },
+	{ 0x7d, "TOK_FORCE_EXPR" },
+	{ 0x7e, "TOK_INVALID" },
+	{ 0x7f, "TOK_EOL" },
+	{ 0xff, "" }
+};
+/*** End debug struct ***/
+#endif /* DEBUG */
+
 #define IS_SPACE(a) (a == ' ' || a == '\t')
 #define IS_DIGIT(a) (a >= '0' && a <= '9')
 #define IS_ALPHA(a) (a >= 'a' && a <= 'z')
 #define IS_EQUAL(a) (a == '=')
 #define IS_OP(a) (a == '+' || a == '/' || a == '*' || \
 		a == '-' || a == '^' || a == '%')
-#define MAYBE_COMP(a) (a == '=' || a == '>' || a == '<' || a == '!')
 
 struct var {
 	char name[MAX_VAR_NAME];
 	long value;
 	struct var *next;
-};
-
-struct var *var_head;
+} *var_head;
 
 
 static inline void do_help(void)
@@ -150,35 +171,41 @@ static int readtok(char *line, int lpos, char *tok, int *type)
 
 	/* Comparison operators */
 	if (*type == TOK_INVALID) {
-		if (MAYBE_COMP(line[lpos])) {
-			switch (line[lpos]) {
-				case '!':
-					if (line[lpos+1] != '=') break;
-				case '=':
-					if (line[lpos+1] == '=' ||
-					line[lpos+1] == '>' ||
-					line[lpos+1] == '<') {
-						*type = TOK_COMPARE;
-						tok[0] = line[lpos];
-						lpos++;
-						tok[1] = line[lpos];
-						lpos++;
-						tok[2] = '\0';
-						return lpos;
+		switch (line[lpos]) {
+			case '!':
+				if (line[lpos+1] != '=') {
+					int tokpos = 0;
+					*type = TOK_COMPARE;
+					while (line[lpos] != ' ' && line[lpos] != '\0') {
+						tok[tokpos++] = line[lpos++];
 					}
-					break;
-				case '>':
-				case '<':
+					tok[tokpos] = '\0';
+					return -1;
+				}
+			case '=':
+				if (line[lpos+1] == '=' ||
+				line[lpos+1] == '>' ||
+				line[lpos+1] == '<') {
 					*type = TOK_COMPARE;
 					tok[0] = line[lpos];
 					lpos++;
-					if (line[lpos+1] == '=') {
-						tok[1] = line[lpos];
-						lpos++;
-						tok[2] = '\0';
-					} else tok[1] = '\0';
+					tok[1] = line[lpos];
+					lpos++;
+					tok[2] = '\0';
 					return lpos;
-			}
+				}
+				break;
+			case '>':
+			case '<':
+				*type = TOK_COMPARE;
+				tok[0] = line[lpos];
+				lpos++;
+				if (line[lpos] == '=' || line[lpos] == '<' || line[lpos] == '>') {
+					tok[1] = line[lpos];
+					lpos++;
+					tok[2] = '\0';
+				} else tok[1] = '\0';
+				return lpos;
 		}
 	}
 
@@ -275,17 +302,25 @@ static long expression(char *line, int len)
 	if (len == 0) return 0;
 
 	while (lpos < MAX_LINE && line[lpos] != 0) {
-//		fprintf(stderr, "Loop; lpos %d, len %d\n", lpos, len);
+//fprintf(stderr, "Loop; lpos %d, len %d\n", lpos, len);
 		if (lpos == len) return result;
 		lpos = readtok(line, lpos, tok, &tok_type);
-		if (tok[0] == '\0') {
-			if (lvar == -1) fprintf(stderr, "error: no such variable: %s\n", lvname);
+		if (tok[0] == '\0' && lvar == -1) {
+			fprintf(stderr, "error: no such variable: %s\n", lvname);
 			break;
 		}
-//		fprintf(stderr, "Read token: '%s' (type %d)\n", tok, tok_type);
+#ifdef DEBUG
+/*** Debugging code ***/
+fprintf(stderr, "Read token: '%s' (", tok);
+for (const struct toktypename *ttn = toktypename; ttn->type != 0xff; ttn++)
+	if (ttn->type == tok_type)
+		fprintf(stderr, "%s)\n", ttn->name);
+/*** End debug code ***/
+#endif /* DEBUG */
 
 		switch (tok_type) {
 			case TOK_COMPARE:
+				if (lpos < 0) goto bad_comparison_token;
 				if (!lset) {
 					fprintf(stderr, "error: left side of comparison empty\n");
 					return 0;
@@ -295,7 +330,7 @@ static long expression(char *line, int len)
 				if (!strncmp(tok, "==", 3)) {
 					if (lvalue == result) result = 1;
 					else result = 0;
-				} else if (!strncmp(tok, "!=", 3)) {
+				} else if (!strncmp(tok, "!=", 3) || !strncmp(tok, "<>", 3) || !strncmp(tok, "><", 3)) {
 					if (lvalue != result) result = 1;
 					else result = 0;
 				} else if (!strncmp(tok, ">=", 3) || !strncmp(tok, "=>", 3)) {
@@ -311,6 +346,7 @@ static long expression(char *line, int len)
 					if (lvalue < result) result = 1;
 					else result = 0;
 				} else {
+bad_comparison_token:
 					fprintf(stderr, "error: bad comparison operator '%s'\n", tok);
 					return 0;
 				}
