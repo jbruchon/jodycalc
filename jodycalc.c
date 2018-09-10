@@ -452,7 +452,7 @@ int main(int argc, char **argv)
 
 	line[MAX_LINE] = '\0';
 
-	fprintf(stderr, "Jody's little calculator\n\n");
+	fprintf(stderr, "Jody's little calculator (type 'quit' to exit)\n\n");
 
 	while (1) {
 		if (!fgets(line, MAX_LINE, stdin)) {
