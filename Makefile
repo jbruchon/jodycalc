@@ -15,24 +15,24 @@ sysconfdir=${prefix}/etc
 
 BUILD_CFLAGS += $(CFLAGS_EXTRA)
 
-all: calc manual
+all: jodycalc manual
 
-calc: calc.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $(BUILD_CFLAGS) -o calc calc.o
+jodycalc: jodycalc.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $(BUILD_CFLAGS) -o jodycalc jodycalc.o
 
 manual:
-#	gzip -9 < calc.1 > calc.1.gz
+#	gzip -9 < jodycalc.1 > jodycalc.1.gz
 
 .c.o:
 	$(CC) -c $(BUILD_CFLAGS) $(CFLAGS) $<
 
 clean:
-	rm -f *.o *~ calc debug.log *.?.gz
+	rm -f *.o *~ jodycalc debug.log *.?.gz
 
 distclean:
-	rm -f *.o *~ calc debug.log *.?.gz calc*.pkg.tar.*
+	rm -f *.o *~ jodycalc debug.log *.?.gz jodycalc*.pkg.tar.*
 
 install: all
-#	install -D -o root -g root -m 0644 calc.1.gz $(DESTDIR)/$(mandir)/man1/calc.1.gz
-#	install -D -o root -g root -m 0755 -s calc $(DESTDIR)/$(bindir)/calc
+#	install -D -o root -g root -m 0644 jodycalc.1.gz $(DESTDIR)/$(mandir)/man1/jodycalc.1.gz
+#	install -D -o root -g root -m 0755 -s jodycalc $(DESTDIR)/$(bindir)/jodycalc
 

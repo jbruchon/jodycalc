@@ -434,6 +434,7 @@ token_final_eval:
 			case TOK_EOL:
 				if (neg != 0) fprintf(stderr, "error: no values given\n");
 				if (lvar == -1) fprintf(stderr, "no such variable: %s\n", lvname);
+				return result;
 
 			default:
 				return result;

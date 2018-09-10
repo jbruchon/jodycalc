@@ -19,7 +19,7 @@ Config.in
 # Normal output and testing dirs
 #
 /foo
-/calc
+/jodycalc
 /a.out
 /test_file.o
 /log.test.*
