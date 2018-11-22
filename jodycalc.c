@@ -486,7 +486,7 @@ int main(int argc, char **argv)
 	int len = 0;
 	char line[MAX_LINE];
 
-	line[MAX_LINE] = '\0';
+	line[MAX_LINE - 1] = '\0';
 
 	fprintf(stderr, "Jody's little calculator (type 'quit' to exit)\n\n");
 
