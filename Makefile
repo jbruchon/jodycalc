@@ -1,6 +1,6 @@
 CC=gcc
-#CFLAGS=-O2 -pipe
-CFLAGS=-Og -g
+CFLAGS=-O2 -pipe
+#CFLAGS=-Og -g -pipe
 BUILD_CFLAGS=-std=gnu99 -I. -D_FILE_OFFSET_BITS=64 -pipe -fstrict-aliasing
 BUILD_CFLAGS += -Wall -Wextra -Wcast-align -Wstrict-aliasing -pedantic -Wstrict-overflow -Wno-unused-parameter
 LDFLAGS=-lm
