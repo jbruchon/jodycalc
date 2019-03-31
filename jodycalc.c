@@ -14,7 +14,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define MAX_LINE 120	/* Maximum input line length */
+#define MAX_LINE 512	/* Maximum input line length */
 #define MAX_VAR_NAME 16	/* Maximum variable name length */
 
 #define TOK_NULL	0x00
@@ -182,7 +182,7 @@ static int readtok(char *line, int lpos, char *tok, int *type)
 					tok[tokpos] = '\0';
 					return -1;
 				}
-			case '=':
+			case '=':  // Yes, it's supposed to fall through.
 				if (line[lpos+1] == '=' ||
 				line[lpos+1] == '>' ||
 				line[lpos+1] == '<') {
@@ -405,7 +405,7 @@ bad_comparison_token:
 					}
 					if (strncmp(tok, ")", 2)) {
 						/* Empty parentheses = 0 */
-						strncat(subexpr, tok, MAX_LINE);
+						strncat(subexpr, tok, MAX_LINE-1);
 					} else break;
 				}
 				/* recursively handle parenthetical subexpression(s) */
