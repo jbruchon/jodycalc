@@ -1,6 +1,7 @@
 /*
  * Jody Bruchon's calculator
- * Copyright (C) 2015-2018 by Jody Bruchon <jody@jodybruchon.com>
+ * Copyright (C) 2015-2020 by Jody Bruchon <jody@jodybruchon.com>
+ * Released under The MIT License
  *
  * This is an educational program that performs simple calculations typed
  * in by the user. It contains a simple tokenizer and recursive descent
