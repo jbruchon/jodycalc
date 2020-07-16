@@ -71,13 +71,13 @@ struct var {
 
 static inline void do_help(void)
 {
-	fprintf(stderr, "\nType math stuff and get answers!\n");
-	fprintf(stderr, "Supports: +, -, /, *, ^, %%, (), integers only\n");
-	fprintf(stderr, "For example, type in:\n");
-	fprintf(stderr, "123 + 321\n");
-	fprintf(stderr, "You'll get the answer:\n");
-	fprintf(stderr, "444\n\n");
-	fprintf(stderr, "Type 'quit' to exit the program.\n\n");
+	printf("\nType math stuff and get answers!\n");
+	printf("Supports: +, -, /, *, ^, %%, (), integers only\n");
+	printf("For example, type in:\n");
+	printf("123 + 321\n");
+	printf("You'll get the answer:\n");
+	printf("444\n\n");
+	printf("Type 'quit' to exit the program.\n\n");
 	return;
 }
 
