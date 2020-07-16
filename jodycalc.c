@@ -471,7 +471,7 @@ token_final_eval:
 
 			case TOK_EOL:
 				if (neg != 0) fprintf(stderr, "error: no values given\n");
-				if (lvar == -1) fprintf(stderr, "no such variable: %s\n", lvname);
+				if (lvar == -1) fprintf(stderr, "error: no such variable: %s\n", lvname);
 				return result;
 
 			default:
@@ -504,7 +504,7 @@ int main(int argc, char **argv)
 			line[len] = '\0';
 		}
 		if (len == 0) continue;
-		if (!strncmp(line, "quit", MAX_LINE)) break;
+		if (!strncmp(line, "quit", MAX_LINE) || !strncmp(line, "exit", MAX_LINE)) break;
 		else if (!strncmp(line, "help", MAX_LINE)) do_help();
 		else printf("%" PRIdMAX "\n", expression(line, len));
 	}
