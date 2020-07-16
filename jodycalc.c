@@ -8,6 +8,7 @@
  * parser with look-ahead.
  */
 
+#include <inttypes.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,7 +65,7 @@ static const struct toktypename toktypename[] = {
 
 struct var {
 	char name[MAX_VAR_NAME];
-	long value;
+	intmax_t value;
 	struct var *next;
 } *var_head;
 
@@ -98,7 +99,7 @@ static struct var *find_var(char *name, struct var **tail)
 
 
 /* Retrieve a variable's value (returns 1 if successful) */
-static int get_var(char *name, long *var)
+static int get_var(char *name, intmax_t *var)
 {
 	struct var *p;
 
@@ -111,7 +112,7 @@ static int get_var(char *name, long *var)
 
 
 /* Set (or add) a variable */
-static void set_var(char *name, long value)
+static void set_var(char *name, intmax_t value)
 {
 	struct var *p, *tail;
 
@@ -264,7 +265,7 @@ static int readtok(char *line, int lpos, char *tok, int *type)
 
 
 /* Perform an operation */
-static long do_operation(const long lvalue, const long rvalue, const int op)
+static intmax_t do_operation(const intmax_t lvalue, const intmax_t rvalue, const int op)
 {
 	switch (op) {
 		case '/':
@@ -277,7 +278,7 @@ static long do_operation(const long lvalue, const long rvalue, const int op)
 		case '-': return (lvalue - rvalue);
 		case '*': return (lvalue * rvalue);
 		case '%': return (lvalue % rvalue);
-		case '^': return (long)pow(lvalue, rvalue);
+		case '^': return (intmax_t)pow(lvalue, rvalue);
 		default:
 			  fprintf(stderr, "error: bad operation\n");
 			  return 0;
@@ -287,16 +288,16 @@ static long do_operation(const long lvalue, const long rvalue, const int op)
 
 
 /* Evaluate an expression */
-static long expression(char *line, int len)
+static intmax_t expression(char *line, int len)
 {
 	int lpos = 0;
 	int neg = 0, lset = 0, lvar = 0;
 	int tok_type;
-	long result = 0;
+	intmax_t result = 0;
 	char tok[MAX_LINE], subexpr[MAX_LINE];
 	char lvname[MAX_VAR_NAME];
 	char *partial;
-	long lvalue = 0, rvalue = 0;
+	intmax_t lvalue = 0, rvalue = 0;
 	int op = 0;
 	char *num_check;
 
@@ -505,7 +506,7 @@ int main(int argc, char **argv)
 		if (len == 0) continue;
 		if (!strncmp(line, "quit", MAX_LINE)) break;
 		else if (!strncmp(line, "help", MAX_LINE)) do_help();
-		else printf("%ld\n", expression(line, len));
+		else printf("%" PRIdMAX "\n", expression(line, len));
 	}
 	exit(EXIT_SUCCESS);
 }
